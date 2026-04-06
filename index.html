@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Web Framework Benchmark – Plot Index</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --border:   #30363d;
+      --accent:   #58a6ff;
+      --accent2:  #3fb950;
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --tag-bg:   #1f2937;
+      --radius:   6px;
+      font-size:  15px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', 'Fira Mono', 'Cascadia Code', monospace;
+      line-height: 1.6;
+      padding: 2rem 1.5rem 4rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* ── top bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+    .topbar h1 { font-size: 1.15rem; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
+    .topbar h1 span { color: var(--accent); }
+
+    .gh-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .35rem .8rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .8rem;
+      transition: color .15s, border-color .15s;
+    }
+    .gh-link:hover { color: var(--text); border-color: var(--accent); }
+    .gh-link svg { fill: currentColor; }
+
+    /* ── breadcrumb ── */
+    .breadcrumb {
+      font-size: .8rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    /* ── section heading ── */
+    h2 {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 1rem;
+      padding-bottom: .4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    section { margin-bottom: 2.5rem; }
+
+    /* ── tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .85rem;
+    }
+    thead th {
+      text-align: left;
+      padding: .5rem .75rem;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface); }
+    tbody td { padding: .55rem .75rem; vertical-align: middle; }
+
+    .tag {
+      display: inline-block;
+      padding: .15rem .5rem;
+      border-radius: 999px;
+      font-size: .72rem;
+      font-weight: 600;
+      background: var(--tag-bg);
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+    .tag.green { color: var(--accent2); }
+
+    .range { color: var(--muted); font-size: .8rem; }
+    .range strong { color: var(--text); font-weight: 500; }
+
+    a.open-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: .8rem;
+      padding: .2rem .55rem;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      transition: border-color .15s;
+    }
+    a.open-link:hover { border-color: var(--accent); }
+
+    a.fw-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    a.fw-link:hover { text-decoration: underline; }
+
+    .desc { color: var(--muted); }
+
+    /* ── empty state ── */
+    .empty { padding: 1.5rem; text-align: center; color: var(--muted); font-size: .85rem; }
+
+    /* ── footer ── */
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: .75rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div class="topbar">
+    <h1>Python Web Framework Benchmark &mdash; <span>Plot Index</span></h1>
+    <a class="gh-link" href="https://github.com/FernandoKGA/plots-frameworks-bench" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 16 16">
+  <path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 005.47 7.59c.4.07.55-.17.55-.38
+  0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+  -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87
+  2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+  0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21
+  2.2.82a7.65 7.65 0 012-.27c.68 0 1.36.09 2 .27 1.53-1.04
+  2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82
+  2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01
+  1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/>
+</svg> FernandoKGA/plots-frameworks-bench
+    </a>
+  </div>
+
+  <section>
+    <h2>Frameworks</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Library</th>
+          <th>Versions tested</th>
+          <th>Version range</th>
+          <th>Request plots</th>
+          <th>Energy plots</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><a class="fw-link" href="plots/aiohttp/index.html">aiohttp</a></td>
+          <td><span class="tag">61 versions</span></td>
+          <td class="range"><strong>3.7.0</strong> &rarr; <strong>3.13.3</strong></td>
+          <td><span class="tag green">27</span></td>
+          <td><span class="tag green">16</span></td>
+          <td><a class="open-link" href="plots/aiohttp/index.html">View plots &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><a class="fw-link" href="plots/baize/index.html">Baize</a></td>
+          <td><span class="tag">30 versions</span></td>
+          <td class="range"><strong>0.12.0</strong> &rarr; <strong>0.23.1</strong></td>
+          <td><span class="tag green">27</span></td>
+          <td><span class="tag green">16</span></td>
+          <td><a class="open-link" href="plots/baize/index.html">View plots &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><a class="fw-link" href="plots/django/index.html">Django</a></td>
+          <td><span class="tag">113 versions</span></td>
+          <td class="range"><strong>3.2</strong> &rarr; <strong>6.0.2</strong></td>
+          <td><span class="tag green">27</span></td>
+          <td><span class="tag green">16</span></td>
+          <td><a class="open-link" href="plots/django/index.html">View plots &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><a class="fw-link" href="plots/falcon/index.html">Falcon</a></td>
+          <td><span class="tag">8 versions</span></td>
+          <td class="range"><strong>3.1.1</strong> &rarr; <strong>4.2.0</strong></td>
+          <td><span class="tag green">27</span></td>
+          <td><span class="tag green">16</span></td>
+          <td><a class="open-link" href="plots/falcon/index.html">View plots &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><a class="fw-link" href="plots/fastapi/index.html">FastAPI</a></td>
+          <td><span class="tag">191 versions</span></td>
+          <td class="range"><strong>0.51.0</strong> &rarr; <strong>0.135.1</strong></td>
+          <td><span class="tag green">27</span></td>
+          <td><span class="tag green">16</span></td>
+          <td><a class="open-link" href="plots/fastapi/index.html">View plots &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><a class="fw-link" href="plots/muffin/index.html">Muffin</a></td>
+          <td><span class="tag">48 versions</span></td>
+          <td class="range"><strong>0.93.2</strong> &rarr; <strong>1.4.2</strong></td>
+          <td><span class="tag green">27</span></td>
+          <td><span class="tag green">16</span></td>
+          <td><a class="open-link" href="plots/muffin/index.html">View plots &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><a class="fw-link" href="plots/quart/index.html">Quart</a></td>
+          <td><span class="tag">2 versions</span></td>
+          <td class="range"><strong>0.19.9</strong> &rarr; <strong>0.20.0</strong></td>
+          <td><span class="tag green">27</span></td>
+          <td><span class="tag green">16</span></td>
+          <td><a class="open-link" href="plots/quart/index.html">View plots &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><a class="fw-link" href="plots/sanic/index.html">Sanic</a></td>
+          <td><span class="tag">10 versions</span></td>
+          <td class="range"><strong>20.12.6</strong> &rarr; <strong>22.12.0</strong></td>
+          <td><span class="tag green">27</span></td>
+          <td><span class="tag green">16</span></td>
+          <td><a class="open-link" href="plots/sanic/index.html">View plots &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><a class="fw-link" href="plots/starlette/index.html">Starlette</a></td>
+          <td><span class="tag">130 versions</span></td>
+          <td class="range"><strong>0.8.5</strong> &rarr; <strong>0.52.1</strong></td>
+          <td><span class="tag green">27</span></td>
+          <td><span class="tag green">16</span></td>
+          <td><a class="open-link" href="plots/starlette/index.html">View plots &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><a class="fw-link" href="plots/tornado/index.html">Tornado</a></td>
+          <td><span class="tag">12 versions</span></td>
+          <td class="range"><strong>6.3</strong> &rarr; <strong>6.5.4</strong></td>
+          <td><span class="tag green">27</span></td>
+          <td><span class="tag green">16</span></td>
+          <td><a class="open-link" href="plots/tornado/index.html">View plots &rarr;</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer>
+    Generated by <code>generate_index.py</code> &mdash;
+    <a href="https://github.com/FernandoKGA/plots-frameworks-bench" target="_blank" rel="noopener" style="color:var(--accent)">GitHub repository</a>
+  </footer>
+
+</body>
+</html>
