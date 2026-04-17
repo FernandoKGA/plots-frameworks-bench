@@ -1,2 +1,8 @@
 results_exc_all/
 .venv
+.cache
+.local
+.ipynb_checkpoints
+.ipython
+__pycache__
+.jupyter
