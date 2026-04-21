@@ -1,22 +1,22 @@
 """
 benchmark_plots.py
 ==================
-Gera gráficos Plotly interativos a partir dos CSVs produzidos pelo pipeline
-de agregação (rounds.csv / summary_by_version.csv).
+Generates interactive Plotly charts from the CSVs produced by the
+aggregation pipeline (rounds.csv / summary_by_version.csv).
 
-Gráficos disponíveis
---------------------
+Available charts
+----------------
 1. box_requests(df, framework, endpoint, metric)
-   Box plot por versão — tempos de resposta de um endpoint (rounds.csv)
+   Box plot by version — response times for one endpoint (rounds.csv)
 
 2. box_energy(df, framework, metric)
-   Box plot por versão — métricas de energia (rounds.csv)
+   Box plot by version — energy metrics (rounds.csv)
 
 3. line_energy(df, framework, metric)
-   Gráfico de linha — consumo de energia médio por versão (rounds.csv)
+   Line chart — mean energy consumption per version (rounds.csv)
 
-Uso rápido
-----------
+Quick usage
+-----------
     from benchmark_plots import load_rounds, box_requests, box_energy, line_energy
 
     df = load_rounds("rounds.csv")
@@ -24,15 +24,15 @@ Uso rápido
     fig = box_requests(df, framework="fastapi", endpoint="api", metric="rt_p95")
     fig.show()
 
-Uso com Dash
-------------
+Usage with Dash
+---------------
     import dash
     from dash import dcc, html, Input, Output
     from benchmark_plots import load_rounds, box_requests, box_energy, line_energy
 
     df = load_rounds("rounds.csv")
     app = dash.Dash(__name__)
-    # monte seus callbacks com as funções acima retornando fig
+    # build your callbacks using the functions above returning fig
 """
 
 from __future__ import annotations
@@ -44,40 +44,40 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 
-# ── Constantes ────────────────────────────────────────────────────────────────
+# ── Constants ─────────────────────────────────────────────────────────────────
 
 ENDPOINTS = ["api", "html", "upload"]
 
 REQUEST_METRICS: dict[str, str] = {
-    "rt_mean":   "Tempo médio (s)",
-    "rt_p50":    "Mediana / p50 (s)",
-    "rt_p75":    "p75 (s)",
-    "rt_p90":    "p90 (s)",
-    "rt_p95":    "p95 (s)",
-    "rt_p99":    "p99 (s)",
-    "rt_min":    "Mínimo (s)",
-    "rt_max":    "Máximo (s)",
+    "rt_mean":        "Mean response time (s)",
+    "rt_p50":         "Median / p50 (s)",
+    "rt_p75":         "p75 (s)",
+    "rt_p90":         "p90 (s)",
+    "rt_p95":         "p95 (s)",
+    "rt_p99":         "p99 (s)",
+    "rt_min":         "Minimum (s)",
+    "rt_max":         "Maximum (s)",
     "throughput_rps": "Throughput (req/s)",
 }
 
 ENERGY_METRICS: dict[str, str] = {
-    "emission_energy_consumed": "Energia total (kWh)",
-    "emission_cpu_energy":      "Energia CPU (kWh)",
-    "emission_ram_energy":      "Energia RAM (kWh)",
-    "emission_emissions":       "Emissões CO₂ (kg)",
-    "emission_duration":        "Duração (s)",
-    "emission_cpu_power":       "Potência CPU (W)",
-    "emission_ram_power":       "Potência RAM (W)",
-    "emission_emissions_rate":  "Taxa de emissão (kg CO₂/s)",
+    "emission_energy_consumed": "Total energy (kWh)",
+    "emission_cpu_energy":      "CPU energy (kWh)",
+    "emission_ram_energy":      "RAM energy (kWh)",
+    "emission_emissions":       "CO2 emissions (kg)",
+    "emission_duration":        "Duration (s)",
+    "emission_cpu_power":       "CPU power (W)",
+    "emission_ram_power":       "RAM power (W)",
+    "emission_emissions_rate":  "Emission rate (kg CO2/s)",
 }
 
-# Paleta discreta — sobra bem para versões ordinais
+# Discrete palette — works well for ordinal versions
 _VERSION_PALETTE = px.colors.qualitative.Plotly
 
-# ── Carregamento de dados ─────────────────────────────────────────────────────
+# ── Data loading ──────────────────────────────────────────────────────────────
 
 def _parse_version(v: str):
-    """Parseia uma string de versão com packaging.version.Version, com fallback."""
+    """Parses a version string using packaging.version.Version, with fallback."""
     from packaging.version import Version, InvalidVersion
     try:
         return Version(v)
@@ -87,13 +87,13 @@ def _parse_version(v: str):
 
 def load_rounds(path: str | Path = "rounds.csv") -> pd.DataFrame:
     """
-    Lê rounds.csv e adiciona a coluna `version_label` (string ordenável).
-    Espera as colunas: framework, framework_version, exc_n, e as métricas.
+    Reads rounds.csv and adds the `version_label` column (sortable string).
+    Expects columns: framework, framework_version, exc_n, and the metrics.
     """
     df = pd.read_csv(path)
     df["version_label"] = df["framework_version"].astype(str)
 
-    # Ordena por framework e depois por versão semântica
+    # Sort by framework and then by semantic version
     df["_ver_key"] = df["version_label"].map(_parse_version)
     df = df.sort_values(["framework", "_ver_key", "exc_n"]).drop(columns="_ver_key")
     df = df.reset_index(drop=True)
@@ -101,18 +101,18 @@ def load_rounds(path: str | Path = "rounds.csv") -> pd.DataFrame:
 
 
 def _framework_versions(df: pd.DataFrame, framework: str) -> list[str]:
-    """Retorna lista de versões do framework ordenada por semver."""
+    """Returns the list of versions for a framework sorted by semver."""
     mask = df["framework"].str.lower() == framework.lower()
     versions = df.loc[mask, "version_label"].unique().tolist()
     return sorted(versions, key=_parse_version)
 
 
 def _col(endpoint: str, metric: str) -> str:
-    """Monta nome da coluna: 'api_rt_p95', 'html_throughput_rps', etc."""
+    """Builds the column name: 'api_rt_p95', 'html_throughput_rps', etc."""
     return f"{endpoint}_{metric}"
 
 
-# ── Gráfico 1 — Box plot: tempo de resposta por versão ───────────────────────
+# ── Chart 1 — Box plot: response time per version ────────────────────────────
 
 def box_requests(
     df: pd.DataFrame,
@@ -122,15 +122,15 @@ def box_requests(
     title: str | None = None,
 ) -> go.Figure:
     """
-    Box plot de uma métrica de requisição (por versão, over rodadas).
+    Box plot of a request metric (per version, over rounds).
 
-    Parâmetros
+    Parameters
     ----------
-    df        : DataFrame retornado por load_rounds()
-    framework : nome do framework (case-insensitive)
+    df        : DataFrame returned by load_rounds()
+    framework : framework name (case-insensitive)
     endpoint  : 'api' | 'html' | 'upload'
-    metric    : chave em REQUEST_METRICS (ex: 'rt_p95', 'throughput_rps')
-    title     : título customizado (opcional)
+    metric    : key in REQUEST_METRICS (e.g. 'rt_p95', 'throughput_rps')
+    title     : custom title (optional)
     """
     col = _col(endpoint, metric)
     mask = df["framework"].str.lower() == framework.lower()
@@ -138,8 +138,8 @@ def box_requests(
 
     if col not in data.columns:
         raise ValueError(
-            f"Coluna '{col}' não encontrada. "
-            f"Colunas disponíveis: {[c for c in data.columns if endpoint in c]}"
+            f"Column '{col}' not found. "
+            f"Available columns: {[c for c in data.columns if endpoint in c]}"
         )
 
     versions = _framework_versions(df, framework)
@@ -155,7 +155,7 @@ def box_requests(
         fig.add_trace(go.Box(
             y=subset,
             name=ver,
-            boxpoints="all",        # mostra pontos individuais (rodadas)
+            boxpoints="all",        # shows individual points (rounds)
             jitter=0.3,
             pointpos=-1.6,
             marker=dict(size=5, opacity=0.6, color=color),
@@ -171,12 +171,12 @@ def box_requests(
         ))
 
     _title = title or (
-        f"{framework.title()} — {endpoint_label}: {y_label} por versão"
+        f"{framework.title()} — {endpoint_label}: {y_label} by version"
     )
 
     fig.update_layout(
         title=dict(text=_title, font=dict(size=16)),
-        xaxis_title="Versão",
+        xaxis_title="Version",
         yaxis_title=y_label,
         showlegend=False,
         plot_bgcolor="white",
@@ -200,7 +200,7 @@ def box_requests(
     return fig
 
 
-# ── Gráfico 2 — Box plot: energia por versão ──────────────────────────────────
+# ── Chart 2 — Box plot: energy per version ────────────────────────────────────
 
 def box_energy(
     df: pd.DataFrame,
@@ -209,14 +209,14 @@ def box_energy(
     title: str | None = None,
 ) -> go.Figure:
     """
-    Box plot de uma métrica de energia (por versão, over rodadas).
+    Box plot of an energy metric (per version, over rounds).
 
-    Parâmetros
+    Parameters
     ----------
-    df        : DataFrame retornado por load_rounds()
-    framework : nome do framework (case-insensitive)
-    metric    : chave em ENERGY_METRICS (ex: 'energy_consumed', 'emissions')
-    title     : título customizado (opcional)
+    df        : DataFrame returned by load_rounds()
+    framework : framework name (case-insensitive)
+    metric    : key in ENERGY_METRICS (e.g. 'energy_consumed', 'emissions')
+    title     : custom title (optional)
     """
     mask = df["framework"].str.lower() == framework.lower()
     data = df[mask].copy()
@@ -224,8 +224,8 @@ def box_energy(
     if metric not in data.columns:
         energy_cols = [c for c in data.columns if c in ENERGY_METRICS]
         raise ValueError(
-            f"Coluna '{metric}' não encontrada no DataFrame. "
-            f"Colunas de energia disponíveis: {energy_cols}"
+            f"Column '{metric}' not found in DataFrame. "
+            f"Available energy columns: {energy_cols}"
         )
 
     versions = _framework_versions(df, framework)
@@ -254,11 +254,11 @@ def box_energy(
             ),
         ))
 
-    _title = title or f"{framework.title()} — {y_label} por versão"
+    _title = title or f"{framework.title()} — {y_label} by version"
 
     fig.update_layout(
         title=dict(text=_title, font=dict(size=16)),
-        xaxis_title="Versão",
+        xaxis_title="Version",
         yaxis_title=y_label,
         showlegend=False,
         plot_bgcolor="white",
@@ -282,7 +282,7 @@ def box_energy(
     return fig
 
 
-# ── Gráfico 3 — Linha: consumo de energia por versão ─────────────────────────
+# ── Chart 3 — Line: energy consumption per version ───────────────────────────
 
 def line_energy(
     df: pd.DataFrame,
@@ -292,16 +292,16 @@ def line_energy(
     title: str | None = None,
 ) -> go.Figure:
     """
-    Gráfico de linha — média de energia por versão, com intervalo de confiança
-    (mean ± std) como área sombreada quando show_ci=True.
+    Line chart — mean energy per version, with confidence interval
+    (mean +/- std) as a shaded area when show_ci=True.
 
-    Parâmetros
+    Parameters
     ----------
-    df        : DataFrame retornado por load_rounds()
-    framework : nome do framework (case-insensitive)
-    metric    : chave em ENERGY_METRICS
-    show_ci   : exibe banda mean ± std
-    title     : título customizado (opcional)
+    df        : DataFrame returned by load_rounds()
+    framework : framework name (case-insensitive)
+    metric    : key in ENERGY_METRICS
+    show_ci   : display mean +/- std band
+    title     : custom title (optional)
     """
     mask = df["framework"].str.lower() == framework.lower()
     data = df[mask].copy()
@@ -309,7 +309,7 @@ def line_energy(
     versions = _framework_versions(df, framework)
     y_label  = ENERGY_METRICS.get(metric, metric)
 
-    # Agrega por versão
+    # Aggregate by version
     agg = (
         data.groupby("version_label")[metric]
         .agg(mean="mean", std="std", count="count")
@@ -318,12 +318,12 @@ def line_energy(
     )
     agg["std"] = agg["std"].fillna(0)
 
-    color_main = "#2563EB"   # azul
+    color_main = "#2563EB"          # blue
     color_ci   = "rgba(37,99,235,0.15)"
 
     fig = go.Figure()
 
-    # Banda de incerteza (mean ± std)
+    # Uncertainty band (mean +/- std)
     if show_ci:
         fig.add_trace(go.Scatter(
             x=list(agg["version_label"]) + list(reversed(agg["version_label"])),
@@ -333,15 +333,15 @@ def line_energy(
             line=dict(color="rgba(0,0,0,0)"),
             hoverinfo="skip",
             showlegend=True,
-            name="Média ± desvio padrão",
+            name="Mean +/- std deviation",
         ))
 
-    # Linha principal
+    # Main line
     fig.add_trace(go.Scatter(
         x=agg["version_label"],
         y=agg["mean"],
         mode="lines+markers",
-        name=f"Média — {y_label}",
+        name=f"Mean — {y_label}",
         line=dict(color=color_main, width=2.5),
         marker=dict(size=7, color=color_main, symbol="circle"),
         hovertemplate=(
@@ -351,11 +351,11 @@ def line_energy(
         ),
     ))
 
-    _title = title or f"{framework.title()} — {y_label} por versão (média ± dp)"
+    _title = title or f"{framework.title()} — {y_label} by version (mean +/- sd)"
 
     fig.update_layout(
         title=dict(text=_title, font=dict(size=16)),
-        xaxis_title="Versão",
+        xaxis_title="Version",
         yaxis_title=y_label,
         plot_bgcolor="white",
         paper_bgcolor="white",
@@ -386,7 +386,7 @@ def line_energy(
     return fig
 
 
-# ── Painel completo de um framework ──────────────────────────────────────────
+# ── Full framework dashboard ──────────────────────────────────────────────────
 
 def dashboard_framework(
     df: pd.DataFrame,
@@ -394,10 +394,10 @@ def dashboard_framework(
     energy_metric: str = "emission_energy_consumed",
 ) -> go.Figure:
     """
-    Painel 2×3 com todos os box plots de requisição (api/html/upload por p95)
-    + box plot de energia + linha de energia num único Figure com subplots.
+    2x3 dashboard with all request box plots (api/html/upload at p95)
+    + energy box plot + energy line chart in a single Figure with subplots.
 
-    Útil para exportar como HTML standalone ou para preview rápido.
+    Useful for exporting as a standalone HTML or for quick preview.
     """
     endpoints = [e for e in ENDPOINTS if any(
         f"{e}_rt_p95" in df.columns for _ in [None]
@@ -405,11 +405,11 @@ def dashboard_framework(
 
     rows, cols = 2, 3
     subplot_titles = (
-        [f"{e.upper()}: p95 de resposta" for e in ENDPOINTS]
+        [f"{e.upper()}: response p95" for e in ENDPOINTS]
         + [
-            f"Energia ({ENERGY_METRICS[energy_metric]}) — box",
-            f"Energia ({ENERGY_METRICS[energy_metric]}) — linha",
-            "",   # célula vazia
+            f"Energy ({ENERGY_METRICS[energy_metric]}) — box",
+            f"Energy ({ENERGY_METRICS[energy_metric]}) — line",
+            "",   # empty cell
         ]
     )
 
@@ -422,7 +422,7 @@ def dashboard_framework(
 
     positions = [(1,1), (1,2), (1,3), (2,1), (2,2)]
 
-    # Box plots de requisição por endpoint
+    # Request box plots per endpoint
     for idx, ep in enumerate(ENDPOINTS):
         r, c = positions[idx]
         sub = box_requests(df, framework, endpoint=ep, metric="rt_p95")
@@ -430,14 +430,14 @@ def dashboard_framework(
             trace.showlegend = False
             fig.add_trace(trace, row=r, col=c)
 
-    # Box plot de energia
+    # Energy box plot
     r, c = positions[3]
     sub_e = box_energy(df, framework, metric=energy_metric)
     for trace in sub_e.data:
         trace.showlegend = False
         fig.add_trace(trace, row=r, col=c)
 
-    # Linha de energia
+    # Energy line chart
     r, c = positions[4]
     sub_l = line_energy(df, framework, metric=energy_metric, show_ci=True)
     for trace in sub_l.data:
@@ -456,7 +456,7 @@ def dashboard_framework(
 
     fig.update_layout(
         title=dict(
-            text=f"<b>{framework.title()}</b> — Painel completo",
+            text=f"<b>{framework.title()}</b> — Full Dashboard",
             font=dict(size=18),
         ),
         plot_bgcolor="white",
@@ -471,7 +471,7 @@ def dashboard_framework(
     return fig
 
 
-# ── Exportação estruturada (Opção A — por framework) ─────────────────────────
+# ── Structured export (Option A — by framework) ──────────────────────────────
 
 def export_all(
     df: pd.DataFrame,
@@ -480,28 +480,28 @@ def export_all(
     include_plotlyjs: str = "cdn",
 ) -> dict[str, list[Path]]:
     """
-    Exporta todos os gráficos organizados por framework (Opção A):
+    Exports all charts organised by framework (Option A):
 
         plots/
-        └── {framework}/
-            ├── requests/
-            │   ├── {endpoint}_{metric}.html   (box plots de requisição)
-            │   └── ...
-            ├── energy/
-            │   ├── box_{metric}.html          (box plots de energia)
-            │   └── line_{metric}.html         (linhas de energia)
-            └── dashboard.html                 (painel completo 2×3)
+        +-- {framework}/
+            +-- requests/
+            |   +-- {endpoint}_{metric}.html   (request box plots)
+            |   +-- ...
+            +-- energy/
+            |   +-- box_{metric}.html          (energy box plots)
+            |   +-- line_{metric}.html         (energy line charts)
+            +-- dashboard.html                 (full 2x3 dashboard)
 
-    Parâmetros
+    Parameters
     ----------
-    df              : DataFrame retornado por load_rounds()
-    output_dir      : pasta raiz de saída (criada se não existir)
-    energy_metric   : métrica de energia usada no dashboard (padrão: energy_consumed)
-    include_plotlyjs : "cdn" (menor) | "inline" (sem internet) | True (cópia local)
+    df               : DataFrame returned by load_rounds()
+    output_dir       : root output directory (created if it does not exist)
+    energy_metric    : energy metric used in the dashboard (default: energy_consumed)
+    include_plotlyjs : "cdn" (smaller) | "inline" (no internet) | True (local copy)
 
-    Retorna
+    Returns
     -------
-    dict framework -> lista de Paths gerados
+    dict framework -> list of generated Paths
     """
     root = Path(output_dir)
     frameworks = sorted(df["framework"].unique())
@@ -520,11 +520,11 @@ def export_all(
         files: list[Path] = []
         print(f"\n[{fw}]")
 
-        # ── Box plots de requisição ──────────────────────────────────────────
+        # ── Request box plots ────────────────────────────────────────────────
         for ep in ENDPOINTS:
             ep_col_base = f"{ep}_rt_p50"
             if ep_col_base not in df.columns:
-                print(f"  skip {ep} (sem dados)")
+                print(f"  skip {ep} (no data)")
                 continue
 
             for metric in req_metrics:
@@ -540,22 +540,24 @@ def export_all(
                 except Exception as e:
                     print(f"  [WARN] {ep}_{metric}: {e}")
 
-        # ── Box plots de energia ─────────────────────────────────────────────
+        # ── Energy box plots ─────────────────────────────────────────────────
+        #for metric in energy_metrics:
+        #    if metric not in df.columns or df[metric].isna().all():
+        #        continue
+        #    try:
+        #        fig  = box_energy(df, framework=fw, metric=metric)
+        #        path = nrg_dir / f"box_{metric}.html"
+        #        fig.write_html(path, include_plotlyjs=include_plotlyjs)
+        #        files.append(path)
+        #        print(f"  energy/box_{metric}.html")
+        #    except Exception as e:
+        #        print(f"  [WARN] box_{metric}: {e}")
+
+        # ── Energy line charts ───────────────────────────────────────────────
         for metric in energy_metrics:
             if metric not in df.columns or df[metric].isna().all():
                 continue
-            try:
-                fig  = box_energy(df, framework=fw, metric=metric)
-                path = nrg_dir / f"box_{metric}.html"
-                fig.write_html(path, include_plotlyjs=include_plotlyjs)
-                files.append(path)
-                print(f"  energy/box_{metric}.html")
-            except Exception as e:
-                print(f"  [WARN] box_{metric}: {e}")
-
-        # ── Linhas de energia ────────────────────────────────────────────────
-        for metric in energy_metrics:
-            if metric not in df.columns or df[metric].isna().all():
+            if metric in ["emission_ram_power", "emission_cpu_power"]:
                 continue
             try:
                 fig  = line_energy(df, framework=fw, metric=metric, show_ci=True)
@@ -566,7 +568,7 @@ def export_all(
             except Exception as e:
                 print(f"  [WARN] line_{metric}: {e}")
 
-        # ── Dashboard completo ───────────────────────────────────────────────
+        # ── Full dashboard ───────────────────────────────────────────────────
         try:
             fig  = dashboard_framework(df, framework=fw, energy_metric=energy_metric)
             path = fw_dir / "dashboard.html"
@@ -579,11 +581,11 @@ def export_all(
         generated[fw] = files
 
     total = sum(len(v) for v in generated.values())
-    print(f"\n✓ {total} arquivo(s) gerado(s) em: {root.resolve()}/")
+    print(f"\n[OK] {total} file(s) generated in: {root.resolve()}/")
     return generated
 
 
-# ── CLI / exemplo de uso ──────────────────────────────────────────────────────
+# ── CLI / usage example ───────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import sys
@@ -593,6 +595,6 @@ if __name__ == "__main__":
 
     df = load_rounds(rounds_path)
     frameworks = df["framework"].unique().tolist()
-    print(f"Frameworks encontrados: {frameworks}")
+    print(f"Frameworks found: {frameworks}")
 
     export_all(df, output_dir=out_dir)
