@@ -293,7 +293,7 @@ def plot_pettitt_heatmap(
         colorbar_title = "Detected"
     elif value == "p_value":
         z = pivot.astype(float).values
-        text = pivot.map(lambda x: f"{x:.4f}" if pd.notna(x) else "—").values
+        text = pivot.map(lambda x: ("p < 0.0001" if x < 0.0001 else f"{x:.4f}") if pd.notna(x) else "—").values
         colorscale = "RdYlGn_r"
         zmid = ALPHA
         title = title or f"Pettitt Test — p-value (alpha = {ALPHA})"
@@ -429,7 +429,7 @@ def plot_pettitt_series(
                 x=cp_idx,
                 y=1.0,
                 xref="x", yref="paper",
-                text=f"Change point: {cp_v}<br>p={p:.4f} {'(sig.)' if h else '(n.s.)'}",
+                text=f"Change point: {cp_v}<br>{'p < 0.0001' if p < 0.0001 else f'p = {p:.4f}'} {'(sig.)' if h else '(n.s.)'}",
                 showarrow=False,
                 xanchor="left",
                 yanchor="top",
