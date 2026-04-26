@@ -14,6 +14,7 @@
       --border:   #30363d;
       --accent:   #58a6ff;
       --accent2:  #3fb950;
+      --accent3:  #d2a8ff;
       --text:     #e6edf3;
       --muted:    #8b949e;
       --tag-bg:   #1f2937;
@@ -31,7 +32,6 @@
       margin: 0 auto;
     }
 
-    /* ── top bar ── */
     .topbar {
       display: flex;
       align-items: center;
@@ -45,7 +45,6 @@
     .topbar h1 { font-size: 1.15rem; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
     .topbar h1 span { color: var(--accent); }
 
-    /* ── breadcrumb ── */
     .breadcrumb {
       font-size: .8rem;
       color: var(--muted);
@@ -54,7 +53,6 @@
     .breadcrumb a { color: var(--accent); text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
 
-    /* ── section heading ── */
     h2 {
       font-size: .95rem;
       font-weight: 600;
@@ -67,12 +65,7 @@
     }
     section { margin-bottom: 2.5rem; }
 
-    /* ── tables ── */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .85rem;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
     thead th {
       text-align: left;
       padding: .5rem .75rem;
@@ -98,7 +91,8 @@
       color: var(--accent);
       border: 1px solid var(--border);
     }
-    .tag.green { color: var(--accent2); }
+    .tag.green  { color: var(--accent2); }
+    .tag.purple { color: var(--accent3); }
 
     .range { color: var(--muted); font-size: .8rem; }
     .range strong { color: var(--text); font-weight: 500; }
@@ -114,19 +108,16 @@
     }
     a.open-link:hover { border-color: var(--accent); }
 
-    a.fw-link {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 500;
-    }
+    a.fw-link { color: var(--accent); text-decoration: none; font-weight: 500; }
     a.fw-link:hover { text-decoration: underline; }
 
     .desc { color: var(--muted); }
 
-    /* ── empty state ── */
+    .badge-mk      { color: var(--accent);  }
+    .badge-pettitt { color: var(--accent3); }
+
     .empty { padding: 1.5rem; text-align: center; color: var(--muted); font-size: .85rem; }
 
-    /* ── footer ── */
     footer {
       margin-top: 3rem;
       padding-top: 1rem;
@@ -154,6 +145,7 @@
           <th>Version range</th>
           <th>Request plots</th>
           <th>Energy plots</th>
+          <th>Statistical plots</th>
           <th></th>
         </tr>
       </thead>
@@ -163,54 +155,120 @@
           <td><a class="fw-link" href="plots/aiohttp/index.html">aiohttp</a></td>
           <td><span class="tag">61 versions</span></td>
           <td class="range"><strong>3.7.0</strong> &rarr; <strong>3.13.3</strong></td>
-          <td><span class="tag green">27</span></td>
-          <td><span class="tag green">16</span></td>
-          <td><a class="open-link" href="plots/aiohttp/index.html">View plots &rarr;</a></td>
+          <td><span class="tag green">9</span></td>
+          <td><span class="tag green">6</span></td>
+          <td><span class="tag purple">3</span></td>
+          <td><a class="open-link" href="plots/aiohttp/index.html">View &rarr;</a></td>
         </tr>
 
         <tr>
-          <td><a class="fw-link" href="plots/baize/index.html">Baize</a></td>
+          <td><a class="fw-link" href="plots/baize/index.html">BáiZé</a></td>
           <td><span class="tag">30 versions</span></td>
           <td class="range"><strong>0.12.0</strong> &rarr; <strong>0.23.1</strong></td>
-          <td><span class="tag green">27</span></td>
-          <td><span class="tag green">16</span></td>
-          <td><a class="open-link" href="plots/baize/index.html">View plots &rarr;</a></td>
+          <td><span class="tag green">9</span></td>
+          <td><span class="tag green">6</span></td>
+          <td><span class="tag purple">3</span></td>
+          <td><a class="open-link" href="plots/baize/index.html">View &rarr;</a></td>
         </tr>
 
         <tr>
           <td><a class="fw-link" href="plots/django/index.html">Django</a></td>
           <td><span class="tag">113 versions</span></td>
           <td class="range"><strong>3.2</strong> &rarr; <strong>6.0.2</strong></td>
-          <td><span class="tag green">27</span></td>
-          <td><span class="tag green">16</span></td>
-          <td><a class="open-link" href="plots/django/index.html">View plots &rarr;</a></td>
+          <td><span class="tag green">9</span></td>
+          <td><span class="tag green">6</span></td>
+          <td><span class="tag purple">3</span></td>
+          <td><a class="open-link" href="plots/django/index.html">View &rarr;</a></td>
         </tr>
 
         <tr>
           <td><a class="fw-link" href="plots/fastapi/index.html">FastAPI</a></td>
           <td><span class="tag">191 versions</span></td>
           <td class="range"><strong>0.51.0</strong> &rarr; <strong>0.135.1</strong></td>
-          <td><span class="tag green">27</span></td>
-          <td><span class="tag green">16</span></td>
-          <td><a class="open-link" href="plots/fastapi/index.html">View plots &rarr;</a></td>
+          <td><span class="tag green">9</span></td>
+          <td><span class="tag green">6</span></td>
+          <td><span class="tag purple">3</span></td>
+          <td><a class="open-link" href="plots/fastapi/index.html">View &rarr;</a></td>
         </tr>
 
         <tr>
           <td><a class="fw-link" href="plots/muffin/index.html">Muffin</a></td>
           <td><span class="tag">48 versions</span></td>
           <td class="range"><strong>0.93.2</strong> &rarr; <strong>1.4.2</strong></td>
-          <td><span class="tag green">27</span></td>
-          <td><span class="tag green">16</span></td>
-          <td><a class="open-link" href="plots/muffin/index.html">View plots &rarr;</a></td>
+          <td><span class="tag green">9</span></td>
+          <td><span class="tag green">6</span></td>
+          <td><span class="tag purple">3</span></td>
+          <td><a class="open-link" href="plots/muffin/index.html">View &rarr;</a></td>
         </tr>
 
         <tr>
           <td><a class="fw-link" href="plots/starlette/index.html">Starlette</a></td>
           <td><span class="tag">130 versions</span></td>
           <td class="range"><strong>0.8.5</strong> &rarr; <strong>0.52.1</strong></td>
-          <td><span class="tag green">27</span></td>
-          <td><span class="tag green">16</span></td>
-          <td><a class="open-link" href="plots/starlette/index.html">View plots &rarr;</a></td>
+          <td><span class="tag green">9</span></td>
+          <td><span class="tag green">6</span></td>
+          <td><span class="tag purple">3</span></td>
+          <td><a class="open-link" href="plots/starlette/index.html">View &rarr;</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  
+  <section>
+    <h2>Statistical Analysis — Cross-Framework</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>Test</th>
+          <th>Description</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td><code>mk_heatmap</code></td>
+          <td class="badge-mk">Mann-Kendall</td>
+          <td class="desc">Combined Heatmap</td>
+          <td><a class="open-link" href="plots/mk_heatmap.html" target="_blank">Open &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><code>mk_heatmap_energy_carbon</code></td>
+          <td class="badge-mk">Mann-Kendall</td>
+          <td class="desc">Energy & Carbon Heatmap</td>
+          <td><a class="open-link" href="plots/mk_heatmap_energy_carbon.html" target="_blank">Open &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><code>mk_heatmap_latency</code></td>
+          <td class="badge-mk">Mann-Kendall</td>
+          <td class="desc">Latency Heatmap</td>
+          <td><a class="open-link" href="plots/mk_heatmap_latency.html" target="_blank">Open &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><code>mk_heatmap_throughput</code></td>
+          <td class="badge-mk">Mann-Kendall</td>
+          <td class="desc">Throughput Heatmap</td>
+          <td><a class="open-link" href="plots/mk_heatmap_throughput.html" target="_blank">Open &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><code>pettitt_heatmap</code></td>
+          <td class="badge-pettitt">Pettitt</td>
+          <td class="desc">Detection Heatmap</td>
+          <td><a class="open-link" href="plots/pettitt_heatmap.html" target="_blank">Open &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><code>pettitt_heatmap_cp_version</code></td>
+          <td class="badge-pettitt">Pettitt</td>
+          <td class="desc">Change-Point Version Heatmap</td>
+          <td><a class="open-link" href="plots/pettitt_heatmap_cp_version.html" target="_blank">Open &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><code>pettitt_heatmap_delta_pct</code></td>
+          <td class="badge-pettitt">Pettitt</td>
+          <td class="desc">Relative Change (Δ%) Heatmap</td>
+          <td><a class="open-link" href="plots/pettitt_heatmap_delta_pct.html" target="_blank">Open &rarr;</a></td>
         </tr>
       </tbody>
     </table>

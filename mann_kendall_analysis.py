@@ -54,9 +54,9 @@ DEFAULT_METRICS: dict[str, tuple[str, str]] = {
     "html_throughput_rps_mean":      ("HTML throughput (req/s)",   "throughput"),
     "upload_throughput_rps_mean":    ("Upload throughput (req/s)", "throughput"),
     # Latency
-    "api_rt_mean_mean":               ("API latency Mean(s)",      "latency"),
-    "html_rt_mean_mean":              ("HTML latency Mean(s)",     "latency"),
-    "upload_rt_mean_mean":            ("Upload latency Mean(s)",   "latency"),
+    "api_rt_mean_mean":               ("API latency Mean (s)",      "latency"),
+    "html_rt_mean_mean":              ("HTML latency Mean (s)",     "latency"),
+    "upload_rt_mean_mean":            ("Upload latency Mean (s)",   "latency"),
     "api_rt_p95_mean":               ("API latency p95 (s)",      "latency"),
     "html_rt_p95_mean":              ("HTML latency p95 (s)",     "latency"),
     "upload_rt_p95_mean":            ("Upload latency p95 (s)",   "latency"),

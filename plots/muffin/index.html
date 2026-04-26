@@ -14,6 +14,7 @@
       --border:   #30363d;
       --accent:   #58a6ff;
       --accent2:  #3fb950;
+      --accent3:  #d2a8ff;
       --text:     #e6edf3;
       --muted:    #8b949e;
       --tag-bg:   #1f2937;
@@ -31,7 +32,6 @@
       margin: 0 auto;
     }
 
-    /* ── top bar ── */
     .topbar {
       display: flex;
       align-items: center;
@@ -45,7 +45,6 @@
     .topbar h1 { font-size: 1.15rem; font-weight: 600; color: var(--text); letter-spacing: -0.3px; }
     .topbar h1 span { color: var(--accent); }
 
-    /* ── breadcrumb ── */
     .breadcrumb {
       font-size: .8rem;
       color: var(--muted);
@@ -54,7 +53,6 @@
     .breadcrumb a { color: var(--accent); text-decoration: none; }
     .breadcrumb a:hover { text-decoration: underline; }
 
-    /* ── section heading ── */
     h2 {
       font-size: .95rem;
       font-weight: 600;
@@ -67,12 +65,7 @@
     }
     section { margin-bottom: 2.5rem; }
 
-    /* ── tables ── */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .85rem;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
     thead th {
       text-align: left;
       padding: .5rem .75rem;
@@ -98,7 +91,8 @@
       color: var(--accent);
       border: 1px solid var(--border);
     }
-    .tag.green { color: var(--accent2); }
+    .tag.green  { color: var(--accent2); }
+    .tag.purple { color: var(--accent3); }
 
     .range { color: var(--muted); font-size: .8rem; }
     .range strong { color: var(--text); font-weight: 500; }
@@ -114,19 +108,16 @@
     }
     a.open-link:hover { border-color: var(--accent); }
 
-    a.fw-link {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 500;
-    }
+    a.fw-link { color: var(--accent); text-decoration: none; font-weight: 500; }
     a.fw-link:hover { text-decoration: underline; }
 
     .desc { color: var(--muted); }
 
-    /* ── empty state ── */
+    .badge-mk      { color: var(--accent);  }
+    .badge-pettitt { color: var(--accent3); }
+
     .empty { padding: 1.5rem; text-align: center; color: var(--muted); font-size: .85rem; }
 
-    /* ── footer ── */
     footer {
       margin-top: 3rem;
       padding-top: 1rem;
@@ -155,49 +146,12 @@
   <section>
     <h2>Request Performance Plots</h2>
     <table>
-      <thead>
-        <tr>
-          <th>File</th>
-          <th>Description</th>
-          <th></th>
-        </tr>
-      </thead>
+      <thead><tr><th>File</th><th>Description</th><th></th></tr></thead>
       <tbody>
-        
-        <tr>
-          <td><code>api_rt_max</code></td>
-          <td class="desc">JSON Endpoint – Response Time – Max</td>
-          <td><a class="open-link" href="requests/api_rt_max.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
         <tr>
           <td><code>api_rt_mean</code></td>
           <td class="desc">JSON Endpoint – Response Time – Mean</td>
           <td><a class="open-link" href="requests/api_rt_mean.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>api_rt_min</code></td>
-          <td class="desc">JSON Endpoint – Response Time – Min</td>
-          <td><a class="open-link" href="requests/api_rt_min.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>api_rt_p50</code></td>
-          <td class="desc">JSON Endpoint – Response Time – P50 (Median)</td>
-          <td><a class="open-link" href="requests/api_rt_p50.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>api_rt_p75</code></td>
-          <td class="desc">JSON Endpoint – Response Time – P75</td>
-          <td><a class="open-link" href="requests/api_rt_p75.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>api_rt_p90</code></td>
-          <td class="desc">JSON Endpoint – Response Time – P90</td>
-          <td><a class="open-link" href="requests/api_rt_p90.html" target="_blank">Open &rarr;</a></td>
         </tr>
 
         <tr>
@@ -207,21 +161,9 @@
         </tr>
 
         <tr>
-          <td><code>api_rt_p99</code></td>
-          <td class="desc">JSON Endpoint – Response Time – P99</td>
-          <td><a class="open-link" href="requests/api_rt_p99.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
           <td><code>api_throughput_rps</code></td>
           <td class="desc">JSON Endpoint – Throughput (req/s)</td>
           <td><a class="open-link" href="requests/api_throughput_rps.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>html_rt_max</code></td>
-          <td class="desc">HTML Endpoint – Response Time – Max</td>
-          <td><a class="open-link" href="requests/html_rt_max.html" target="_blank">Open &rarr;</a></td>
         </tr>
 
         <tr>
@@ -231,39 +173,9 @@
         </tr>
 
         <tr>
-          <td><code>html_rt_min</code></td>
-          <td class="desc">HTML Endpoint – Response Time – Min</td>
-          <td><a class="open-link" href="requests/html_rt_min.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>html_rt_p50</code></td>
-          <td class="desc">HTML Endpoint – Response Time – P50 (Median)</td>
-          <td><a class="open-link" href="requests/html_rt_p50.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>html_rt_p75</code></td>
-          <td class="desc">HTML Endpoint – Response Time – P75</td>
-          <td><a class="open-link" href="requests/html_rt_p75.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>html_rt_p90</code></td>
-          <td class="desc">HTML Endpoint – Response Time – P90</td>
-          <td><a class="open-link" href="requests/html_rt_p90.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
           <td><code>html_rt_p95</code></td>
           <td class="desc">HTML Endpoint – Response Time – P95</td>
           <td><a class="open-link" href="requests/html_rt_p95.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>html_rt_p99</code></td>
-          <td class="desc">HTML Endpoint – Response Time – P99</td>
-          <td><a class="open-link" href="requests/html_rt_p99.html" target="_blank">Open &rarr;</a></td>
         </tr>
 
         <tr>
@@ -273,39 +185,9 @@
         </tr>
 
         <tr>
-          <td><code>upload_rt_max</code></td>
-          <td class="desc">Upload Endpoint – Response Time – Max</td>
-          <td><a class="open-link" href="requests/upload_rt_max.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
           <td><code>upload_rt_mean</code></td>
           <td class="desc">Upload Endpoint – Response Time – Mean</td>
           <td><a class="open-link" href="requests/upload_rt_mean.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>upload_rt_min</code></td>
-          <td class="desc">Upload Endpoint – Response Time – Min</td>
-          <td><a class="open-link" href="requests/upload_rt_min.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>upload_rt_p50</code></td>
-          <td class="desc">Upload Endpoint – Response Time – P50 (Median)</td>
-          <td><a class="open-link" href="requests/upload_rt_p50.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>upload_rt_p75</code></td>
-          <td class="desc">Upload Endpoint – Response Time – P75</td>
-          <td><a class="open-link" href="requests/upload_rt_p75.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>upload_rt_p90</code></td>
-          <td class="desc">Upload Endpoint – Response Time – P90</td>
-          <td><a class="open-link" href="requests/upload_rt_p90.html" target="_blank">Open &rarr;</a></td>
         </tr>
 
         <tr>
@@ -315,90 +197,22 @@
         </tr>
 
         <tr>
-          <td><code>upload_rt_p99</code></td>
-          <td class="desc">Upload Endpoint – Response Time – P99</td>
-          <td><a class="open-link" href="requests/upload_rt_p99.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
           <td><code>upload_throughput_rps</code></td>
           <td class="desc">Upload Endpoint – Throughput (req/s)</td>
           <td><a class="open-link" href="requests/upload_throughput_rps.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-      </tbody>
+        </tr></tbody>
     </table>
   </section>
 
   <section>
     <h2>Energy Consumption Plots</h2>
     <table>
-      <thead>
-        <tr>
-          <th>File</th>
-          <th>Description</th>
-          <th></th>
-        </tr>
-      </thead>
+      <thead><tr><th>File</th><th>Description</th><th></th></tr></thead>
       <tbody>
-        
-        <tr>
-          <td><code>box_emission_cpu_energy</code></td>
-          <td class="desc">CPU Energy – Box Plot</td>
-          <td><a class="open-link" href="energy/box_emission_cpu_energy.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>box_emission_cpu_power</code></td>
-          <td class="desc">Emission Cpu Power – Box Plot</td>
-          <td><a class="open-link" href="energy/box_emission_cpu_power.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>box_emission_duration</code></td>
-          <td class="desc">Measurement Duration – Box Plot</td>
-          <td><a class="open-link" href="energy/box_emission_duration.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>box_emission_emissions</code></td>
-          <td class="desc">CO₂ Emissions – Box Plot</td>
-          <td><a class="open-link" href="energy/box_emission_emissions.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>box_emission_emissions_rate</code></td>
-          <td class="desc">CO₂ Emission Rate – Box Plot</td>
-          <td><a class="open-link" href="energy/box_emission_emissions_rate.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>box_emission_energy_consumed</code></td>
-          <td class="desc">Total Energy Consumed – Box Plot</td>
-          <td><a class="open-link" href="energy/box_emission_energy_consumed.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>box_emission_ram_energy</code></td>
-          <td class="desc">RAM Energy – Box Plot</td>
-          <td><a class="open-link" href="energy/box_emission_ram_energy.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>box_emission_ram_power</code></td>
-          <td class="desc">Emission Ram Power – Box Plot</td>
-          <td><a class="open-link" href="energy/box_emission_ram_power.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
         <tr>
           <td><code>line_emission_cpu_energy</code></td>
           <td class="desc">CPU Energy – Line Chart</td>
           <td><a class="open-link" href="energy/line_emission_cpu_energy.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>line_emission_cpu_power</code></td>
-          <td class="desc">Emission Cpu Power – Line Chart</td>
-          <td><a class="open-link" href="energy/line_emission_cpu_power.html" target="_blank">Open &rarr;</a></td>
         </tr>
 
         <tr>
@@ -429,18 +243,39 @@
           <td><code>line_emission_ram_energy</code></td>
           <td class="desc">RAM Energy – Line Chart</td>
           <td><a class="open-link" href="energy/line_emission_ram_energy.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-
-        <tr>
-          <td><code>line_emission_ram_power</code></td>
-          <td class="desc">Emission Ram Power – Line Chart</td>
-          <td><a class="open-link" href="energy/line_emission_ram_power.html" target="_blank">Open &rarr;</a></td>
-        </tr>
-      </tbody>
+        </tr></tbody>
     </table>
   </section>
 
-  <section><h2>Dashboard</h2><p style="padding:.5rem 0"><a class="open-link" href="dashboard.html" target="_blank">dashboard</a> &nbsp;|&nbsp; <a class="open-link" href="index.html" target="_blank">index</a></p></section>
+  <section>
+    <h2>Statistical Analysis Plots</h2>
+    <table>
+      <thead><tr><th>File</th><th>Test</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>mk_theil_sen_trend_muffin</code></td>
+          <td class="badge-mk">Mann-Kendall</td>
+          <td class="desc">Mann-Kendall – Theil-Sen Trend Line (muffin)</td>
+          <td><a class="open-link" href="mk_theil_sen_trend_muffin.html" target="_blank">Open &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><code>pettitt_emission_ecm_muffin</code></td>
+          <td class="badge-pettitt">Pettitt</td>
+          <td class="desc">Pettitt Emission Ecm Muffin</td>
+          <td><a class="open-link" href="pettitt_emission_ecm_muffin.html" target="_blank">Open &rarr;</a></td>
+        </tr>
+
+        <tr>
+          <td><code>pettitt_emission_emissions_muffin</code></td>
+          <td class="badge-pettitt">Pettitt</td>
+          <td class="desc">Pettitt – CO₂ Emissions Change Point (muffin)</td>
+          <td><a class="open-link" href="pettitt_emission_emissions_muffin.html" target="_blank">Open &rarr;</a></td>
+        </tr></tbody>
+    </table>
+  </section>
+
+  <section><h2>Dashboard</h2><p style="padding:.5rem 0"><a class="open-link" href="index.html" target="_blank">index</a></p></section>
 
   <footer>
     Generated by <code>generate_index.py</code>
