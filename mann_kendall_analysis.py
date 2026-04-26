@@ -326,7 +326,7 @@ _TREND_SYMBOL = {
 
 def plot_mk_heatmap(
     results: pd.DataFrame,
-    metric_group: str | None = None,
+    metric_group: str | list[str] | None = None,
     alpha: float = 0.05,
     title: str | None = None,
     higher_is_better: bool = False,
@@ -349,15 +349,18 @@ def plot_mk_heatmap(
     Parameters
     ----------
     results           : DataFrame returned by ``run_mk_analysis``.
-    metric_group      : Filter by group (``'energy'``, ``'carbon'``, etc.).
+    metric_group      : Filter by group name (``'energy'``, ``'carbon'``, etc.)
+                        or a list of group names to combine into one heatmap
+                        (e.g. ``['energy', 'carbon']``). ``None`` = all groups.
     alpha             : Significance level used for colouring.
     title             : Custom plot title.
     higher_is_better  : When True, increasing trend = green (good).
                         Use for throughput metrics. Default False.
     """
     df = results.copy()
-    if metric_group:
-        df = df[df["group"] == metric_group]
+    if metric_group is not None:
+        groups = [metric_group] if isinstance(metric_group, str) else metric_group
+        df = df[df["group"].isin(groups)]
 
     frameworks = sorted(df["framework"].unique())
     metrics    = df["metric_label"].unique().tolist()
@@ -430,7 +433,12 @@ def plot_mk_heatmap(
         ygap=2,
     ))
 
-    group_label = f" - {metric_group.title()}" if metric_group else ""
+    if metric_group is None:
+        group_label = ""
+    elif isinstance(metric_group, list):
+        group_label = f" - {' & '.join(g.title() for g in metric_group)}"
+    else:
+        group_label = f" - {metric_group.title()}"
     fig.update_layout(
         title=dict(
             text=title or f"Mann-Kendall trends{group_label} (alpha={alpha})",
