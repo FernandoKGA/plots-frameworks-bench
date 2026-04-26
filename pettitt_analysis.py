@@ -43,23 +43,23 @@ METRICS = [
     "emission_emissions_mean",
     "emission_emissions_rate_mean",
     "emission_duration_mean",
-    "emission_energy_per_request_mean",
-    "emission_co2_per_request_mean",
+    #"emission_energy_per_request_mean",
+    #"emission_co2_per_request_mean",
     # HTTP performance - api
     "api_throughput_rps_mean",
     "api_rt_p50_mean",
     "api_rt_p95_mean",
-    "api_rt_p99_mean",
+    #"api_rt_p99_mean",
     # HTTP performance - html
     "html_throughput_rps_mean",
     "html_rt_p50_mean",
     "html_rt_p95_mean",
-    "html_rt_p99_mean",
+    #"html_rt_p99_mean",
     # HTTP performance - upload
     "upload_throughput_rps_mean",
     "upload_rt_p50_mean",
     "upload_rt_p95_mean",
-    "upload_rt_p99_mean",
+    #"upload_rt_p99_mean",
 ]
 
 ALPHA = 0.05
@@ -409,29 +409,34 @@ def plot_pettitt_series(
         # add_vline does not support categorical (string) x-axes — use
         # add_shape + add_annotation with xref="x" instead.
         line_color = "#EF553B" if h else "#AAAAAA"
-        fig.add_shape(
-            type="line",
-            x0=cp_v, x1=cp_v,
-            y0=0, y1=1,
-            xref="x", yref="paper",
-            line=dict(color=line_color, dash="dash", width=2),
-        )
-        fig.add_annotation(
-            x=cp_v,
-            y=1.0,
-            xref="x", yref="paper",
-            text=f"Change point: {cp_v}<br>p={p:.4f} {'(sig.)' if h else '(n.s.)'}",
-            showarrow=False,
-            xanchor="left",
-            yanchor="top",
-            font=dict(size=11, color=line_color),
-            bgcolor="rgba(255,255,255,0.7)",
-            bordercolor=line_color,
-            borderwidth=1,
-        )
-
         if cp_v in versions:
             cp_idx = versions.index(cp_v)
+        else:
+            cp_idx = None
+
+        if cp_idx is not None:
+            fig.add_shape(
+                type="line",
+                x0=cp_idx, x1=cp_idx,
+                y0=0, y1=1,
+                xref="x", yref="paper",
+                line=dict(color=line_color, dash="dash", width=2),
+            )
+            fig.add_annotation(
+                x=cp_idx,
+                y=1.0,
+                xref="x", yref="paper",
+                text=f"Change point: {cp_v}<br>p={p:.4f} {'(sig.)' if h else '(n.s.)'}",
+                showarrow=False,
+                xanchor="left",
+                yanchor="top",
+                font=dict(size=11, color=line_color),
+                bgcolor="rgba(255,255,255,0.7)",
+                bordercolor=line_color,
+                borderwidth=1,
+            )
+
+        if cp_idx is not None:
             # cp_idx is the FIRST index of segment 2 (pyhomogeneity convention:
             # mu1 = mean(x[:cp]), mu2 = mean(x[cp:])). So mu1 covers everything
             # BEFORE cp_v and mu2 covers FROM cp_v onwards — no overlap.
@@ -455,7 +460,7 @@ def plot_pettitt_series(
 
     fig.update_layout(
         title=f"{framework} — {metric}",
-        xaxis=dict(title="Version", tickangle=-45),
+        xaxis=dict(title="Version", tickangle=-45,  type="category"),
         yaxis=dict(title=metric),
         template="plotly_white",
         hovermode="x unified",

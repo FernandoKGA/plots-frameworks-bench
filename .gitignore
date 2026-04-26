@@ -6,3 +6,5 @@ results_exc_all/
 .ipython
 __pycache__
 .jupyter
+*.png
+*:Zone.Identifier

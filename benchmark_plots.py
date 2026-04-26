@@ -50,13 +50,13 @@ ENDPOINTS = ["api", "html", "upload"]
 
 REQUEST_METRICS: dict[str, str] = {
     "rt_mean":        "Mean response time (s)",
-    "rt_p50":         "Median / p50 (s)",
-    "rt_p75":         "p75 (s)",
-    "rt_p90":         "p90 (s)",
+    #"rt_p50":         "Median / p50 (s)",
+    #"rt_p75":         "p75 (s)",
+    #"rt_p90":         "p90 (s)",
     "rt_p95":         "p95 (s)",
-    "rt_p99":         "p99 (s)",
-    "rt_min":         "Minimum (s)",
-    "rt_max":         "Maximum (s)",
+    #"rt_p99":         "p99 (s)",
+    #"rt_min":         "Minimum (s)",
+    #"rt_max":         "Maximum (s)",
     "throughput_rps": "Throughput (req/s)",
 }
 
@@ -569,14 +569,14 @@ def export_all(
                 print(f"  [WARN] line_{metric}: {e}")
 
         # ── Full dashboard ───────────────────────────────────────────────────
-        try:
-            fig  = dashboard_framework(df, framework=fw, energy_metric=energy_metric)
-            path = fw_dir / "dashboard.html"
-            fig.write_html(path, include_plotlyjs=include_plotlyjs)
-            files.append(path)
-            print(f"  dashboard.html")
-        except Exception as e:
-            print(f"  [WARN] dashboard: {e}")
+        #try:
+        #    fig  = dashboard_framework(df, framework=fw, energy_metric=energy_metric)
+        #    path = fw_dir / "dashboard.html"
+        #    fig.write_html(path, include_plotlyjs=include_plotlyjs)
+        #    files.append(path)
+        #    print(f"  dashboard.html")
+        #except Exception as e:
+        #    print(f"  [WARN] dashboard: {e}")
 
         generated[fw] = files
 

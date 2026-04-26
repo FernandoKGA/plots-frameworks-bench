@@ -42,18 +42,21 @@ from packaging.version import Version, InvalidVersion
 #: Key   : column name in summary_by_version.csv (suffix _mean)
 #: Value : (human-readable label, group)
 DEFAULT_METRICS: dict[str, tuple[str, str]] = {
-    # RQ1 — Energy
+    # Energy
     "emission_energy_consumed_mean": ("Total energy (kWh)",        "energy"),
     "emission_cpu_energy_mean":      ("CPU energy (kWh)",          "energy"),
     "emission_ram_energy_mean":      ("RAM energy (kWh)",          "energy"),
-    # RQ3 — Carbon
+    # Carbon
     "emission_emissions_mean":       ("CO2 emitted (kg)",          "carbon"),
     "emission_emissions_rate_mean":  ("CO2 rate (kg CO2/s)",       "carbon"),
-    # RQ2 — Throughput
+    # Throughput
     "api_throughput_rps_mean":       ("API throughput (req/s)",    "throughput"),
     "html_throughput_rps_mean":      ("HTML throughput (req/s)",   "throughput"),
     "upload_throughput_rps_mean":    ("Upload throughput (req/s)", "throughput"),
-    # RQ2 — Latency
+    # Latency
+    "api_rt_mean_mean":               ("API latency Mean(s)",      "latency"),
+    "html_rt_mean_mean":              ("HTML latency Mean(s)",     "latency"),
+    "upload_rt_mean_mean":            ("Upload latency Mean(s)",   "latency"),
     "api_rt_p95_mean":               ("API latency p95 (s)",      "latency"),
     "html_rt_p95_mean":              ("HTML latency p95 (s)",     "latency"),
     "upload_rt_p95_mean":            ("Upload latency p95 (s)",   "latency"),
@@ -326,24 +329,31 @@ def plot_mk_heatmap(
     metric_group: str | None = None,
     alpha: float = 0.05,
     title: str | None = None,
+    higher_is_better: bool = False,
 ) -> go.Figure:
     """
     MK trend heatmap: frameworks (Y-axis) x metrics (X-axis).
 
-    Colours:
-        Red        -> significant increasing trend
-        Green      -> significant decreasing trend
+    Colours (default, ``higher_is_better=False`` — e.g. energy, carbon):
+        Red        -> significant increasing trend  (worsening)
+        Green      -> significant decreasing trend  (improvement)
         Light blue -> no significant trend
         Grey       -> insufficient data / skipped
+
+    When ``higher_is_better=True`` (e.g. throughput):
+        Green      -> significant increasing trend  (improvement)
+        Red        -> significant decreasing trend  (worsening)
 
     Each cell shows the trend direction symbol and the p-value.
 
     Parameters
     ----------
-    results      : DataFrame returned by ``run_mk_analysis``.
-    metric_group : Filter by group (``'energy'``, ``'carbon'``, etc.).
-    alpha        : Significance level used for colouring.
-    title        : Custom plot title.
+    results           : DataFrame returned by ``run_mk_analysis``.
+    metric_group      : Filter by group (``'energy'``, ``'carbon'``, etc.).
+    alpha             : Significance level used for colouring.
+    title             : Custom plot title.
+    higher_is_better  : When True, increasing trend = green (good).
+                        Use for throughput metrics. Default False.
     """
     df = results.copy()
     if metric_group:
@@ -353,7 +363,13 @@ def plot_mk_heatmap(
     metrics    = df["metric_label"].unique().tolist()
 
     # Build matrices for z (numeric colorscale), cell text, and hover text
-    trend_to_z = {"increasing": 1.0, "decreasing": -1.0, "no trend": 0.0, "skip": 0.5}
+    # z convention: +1 = "bad" direction (red), -1 = "good" direction (green)
+    # For higher_is_better metrics, increasing is good → flip sign
+    def _trend_to_z(trend: str, sig: bool) -> float:
+        if not sig or trend in ("no trend", "skip"):
+            return 0.0 if trend != "skip" else 0.5
+        base = {"increasing": 1.0, "decreasing": -1.0}.get(trend, 0.5)
+        return -base if higher_is_better else base
 
     z_mat, text_mat, hover_mat = [], [], []
 
@@ -374,7 +390,7 @@ def plot_mk_heatmap(
                 n     = r.get("n_versions")
                 sig   = (r.get("h") == True)
 
-                z_row.append(trend_to_z.get(trend, 0.5) if sig else 0.0)
+                z_row.append(_trend_to_z(trend, sig))
                 sym   = _TREND_SYMBOL.get(trend, "-")
                 p_str = f"{p:.4f}" if pd.notna(p) else "-"
                 t_row.append(f"{sym}<br><sub>{p_str}</sub>" if sig else f"<sub>{p_str}</sub>")
@@ -390,11 +406,13 @@ def plot_mk_heatmap(
         text_mat.append(t_row)
         hover_mat.append(h_row)
 
+    # Colorscale: green = good (-1), light blue = neutral (0),
+    #             grey = skip (0.5), red = bad (+1)
     colorscale = [
-        [0.0,  "#2ca02c"],   # -1   -> green (decreasing)
+        [0.0,  "#2ca02c"],   # -1   -> green (good direction)
         [0.5,  "#aec7e8"],   #  0   -> light blue (no trend)
         [0.75, "#eeeeee"],   #  0.5 -> grey (skip)
-        [1.0,  "#d62728"],   #  1   -> red (increasing)
+        [1.0,  "#d62728"],   #  1   -> red (bad direction)
     ]
 
     fig = go.Figure(go.Heatmap(
@@ -427,12 +445,21 @@ def plot_mk_heatmap(
         margin=dict(t=60, b=120, l=100, r=30),
     )
 
-    # Manual legend entries
-    for label, color, sym in [
-        ("Increasing (sig.)",    "#d62728", "^"),
-        ("Decreasing (sig.)",    "#2ca02c", "v"),
-        ("No significant trend", "#aec7e8", "o"),
-    ]:
+    # Legend labels depend on the semantic direction of the metrics
+    if higher_is_better:
+        legend_entries = [
+            ("Increasing (sig.) — improvement", "#2ca02c", "^"),
+            ("Decreasing (sig.) — worsening",   "#d62728", "v"),
+            ("No significant trend",             "#aec7e8", "o"),
+        ]
+    else:
+        legend_entries = [
+            ("Increasing (sig.) — worsening",   "#d62728", "^"),
+            ("Decreasing (sig.) — improvement", "#2ca02c", "v"),
+            ("No significant trend",             "#aec7e8", "o"),
+        ]
+
+    for label, color, sym in legend_entries:
         fig.add_trace(go.Scatter(
             x=[None], y=[None], mode="markers",
             marker=dict(size=12, color=color, symbol="square"),
@@ -555,6 +582,7 @@ def export_mk_results(
     results: pd.DataFrame,
     output_csv: str = "mk_results.csv",
     output_html: str | None = "mk_heatmap.html",
+    alpha: float = 0.05
 ) -> None:
     """
     Save results to CSV and (optionally) the heatmap to a standalone HTML file.
@@ -569,6 +597,6 @@ def export_mk_results(
     print(f"Results saved to: {output_csv}")
 
     if output_html:
-        fig = plot_mk_heatmap(results)
+        fig = plot_mk_heatmap(results, alpha=alpha)
         fig.write_html(output_html, include_plotlyjs="cdn")
         print(f"Heatmap saved to: {output_html}")
