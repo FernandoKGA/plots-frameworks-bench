@@ -53,13 +53,13 @@ METRICS = [
     #"api_rt_p99_mean",
     # HTTP performance - html
     "html_throughput_rps_mean",
-    "api_rt_mean_mean",
+    "html_rt_mean_mean",
     #"html_rt_p50_mean",
     "html_rt_p95_mean",
     #"html_rt_p99_mean",
     # HTTP performance - upload
     "upload_throughput_rps_mean",
-    "api_rt_mean_mean",
+    "upload_rt_mean_mean",
     #"upload_rt_p50_mean",
     "upload_rt_p95_mean",
     #"upload_rt_p99_mean",
